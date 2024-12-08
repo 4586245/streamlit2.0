@@ -3,22 +3,17 @@ from pydantic import BaseModel
 import pandas as pd
 import os
 import uvicorn
-from typing import Literal
 from random import uniform
-from preprocessing import get_min_max
 
 app = FastAPI()
 
-# Load dataset path
 DATA_PATH = "insurance.csv"
 if not os.path.exists(DATA_PATH):
     raise FileNotFoundError(f"{DATA_PATH} not found.")
 
-# Load dataset
 df = pd.read_csv(DATA_PATH)
 
 
-# Request models
 class MatchDataRequest(BaseModel):
     age: int
     bmi: float
@@ -31,20 +26,17 @@ class MatchDataRequest(BaseModel):
 class AddDataRequest(BaseModel):
     age: int
     bmi: float
-    gender: str
+    sex: str
     children: int
-    smoke: str
-    region: Literal["Southwest", "Southeast", "Northwest", "Northeast"]
+    smoker: str
+    region: str
     charges: float
-
-
 
 
 @app.post("/submit_form")
 def submit_form(data: MatchDataRequest):
     global df
 
-    # Apply filtering logic
     filtered_data = df[
         (df["age"] >= data.age - 10) & (df["age"] <= data.age + 10) &
         (df["bmi"] >= data.bmi - 10) & (df["bmi"] <= data.bmi + 10) &
@@ -52,7 +44,7 @@ def submit_form(data: MatchDataRequest):
         (df["children"] == data.children) &
         (df["smoker"].str.lower() == data.smoke.lower()) &
         (df["region"].str.lower() == data.region.lower())
-    ]
+        ]
 
     if not filtered_data.empty:
         avg_charges = filtered_data["charges"].mean()
@@ -69,7 +61,6 @@ def submit_form(data: MatchDataRequest):
             "message": "No matching data found. Returning a random charge.",
             "random_charge": round(random_charge, 2),
         }
-
 
 
 @app.post("/add_data")

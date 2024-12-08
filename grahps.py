@@ -5,7 +5,6 @@ import plotly.express as px
 import plotly.graph_objects as go
 
 
-# raise HTTPException(status_code=404, detail="No matching data found.")
 class Medical_cost:
     def __init__(self, df):
         self.df = df
@@ -267,25 +266,23 @@ class Medical_cost:
 
         return fig
 
-    def charges_region_children(self):
-        average_charges = self.df.groupby(['region', 'children']).charges.mean().reset_index()
-        fig = px.bar(
-            average_charges,
-            x="region",
-            y="charges",
-            color="children",
-            barmode="group",
-            title="Average expenses depending on the region and the number of children",
-            labels={"region": "Region", "charges": "Charges", "children": "Number of children"}
-        )
-        return fig
+    def plot_age_vs_charges_with_conditions(self):
+        df_m = self.df[(self.df['age'] > 30) & (self.df['smoker'] == 'yes') & (self.df['sex'] == 'male')]
+        df_w = self.df[(self.df['age'] > 30) & (self.df['smoker'] == 'no') & (self.df['sex'] == 'female') & (
+                    self.df['children'] == 0)]
+        df_n = pd.concat([df_m, df_w])
+
+        plot = sns.lmplot(data=df_n, x="age", y="charges", hue="sex")
+        plot.set_axis_labels("Age", "Medical Charges")
+        plot.fig.suptitle("Age vs Medical Charges for Selected Conditions", y=1.02)
+        return plot.fig
 
     def plot_age_vs_charges_with_conditions(self):
         df_m = self.df[(self.df['age'] > 30) & (self.df['smoker'] == 'yes') & (self.df['sex'] == 'male')]
-        df_w = self.df[(self.df['age'] > 30) & (self.df['smoker'] == 'no') & (self.df['sex'] == 'female') & (self.df['children'] == 0)]
+        df_w = self.df[(self.df['age'] > 30) & (self.df['smoker'] == 'no') & (self.df['sex'] == 'female') & (
+                    self.df['children'] == 0)]
         df_n = pd.concat([df_m, df_w])
         sns.lmplot(data=df_n, x="age", y="charges", hue="sex")
 
     def generate_key(self, prefix="chart"):
         return f"{prefix}_{uuid.uuid4().hex}"
-
