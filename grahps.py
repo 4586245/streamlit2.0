@@ -3,6 +3,7 @@ import seaborn as sns
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import matplotlib.pyplot as plt
 
 
 class Medical_cost:
@@ -275,14 +276,7 @@ class Medical_cost:
         plot = sns.lmplot(data=df_n, x="age", y="charges", hue="sex")
         plot.set_axis_labels("Age", "Medical Charges")
         plot.fig.suptitle("Age vs Medical Charges for Selected Conditions", y=1.02)
-        return plot.fig
-
-    def plot_age_vs_charges_with_conditions(self):
-        df_m = self.df[(self.df['age'] > 30) & (self.df['smoker'] == 'yes') & (self.df['sex'] == 'male')]
-        df_w = self.df[(self.df['age'] > 30) & (self.df['smoker'] == 'no') & (self.df['sex'] == 'female') & (
-                    self.df['children'] == 0)]
-        df_n = pd.concat([df_m, df_w])
-        sns.lmplot(data=df_n, x="age", y="charges", hue="sex")
+        return plt
 
     def generate_key(self, prefix="chart"):
         return f"{prefix}_{uuid.uuid4().hex}"
